@@ -2,9 +2,9 @@ package com.chughes.abqwtb.server.model;
 
 public class RealtimeTripInfo implements Comparable<RealtimeTripInfo> {
 
-  private int secondsLate;
+  private long secondsLate;
 
-  private int tripId;
+  private String tripId;
 
   private int scheduledTime;
 
@@ -12,19 +12,19 @@ public class RealtimeTripInfo implements Comparable<RealtimeTripInfo> {
 
   private String service;
 
-  public int getSecondsLate() {
+  public long getSecondsLate() {
     return secondsLate;
   }
 
-  public void setSecondsLate(int secondsLate) {
+  public void setSecondsLate(long secondsLate) {
     this.secondsLate = secondsLate;
   }
 
-  public int getTripId() {
+  public String getTripId() {
     return tripId;
   }
 
-  public void setTripId(int tripId) {
+  public void setTripId(String tripId) {
     this.tripId = tripId;
   }
 

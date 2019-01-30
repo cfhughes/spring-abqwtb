@@ -10,11 +10,7 @@ import static java.util.Calendar.WEDNESDAY;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import javax.annotation.PostConstruct;
 import org.onebusaway.gtfs.impl.GtfsDaoImpl;
 import org.onebusaway.gtfs.model.AgencyAndId;
@@ -29,6 +25,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class GtfsDataService {
 
+  public static final int HOURS_AFTER_MIDNIGHT = 3;
   private GtfsDaoImpl store;
 
   private ArrayList<AgencyAndId> serviceIds = null;
@@ -39,14 +36,25 @@ public class GtfsDataService {
   public void init() {
     GtfsReader reader = new GtfsReader();
     try {
-      reader.setInputLocation(new File("src/main/resources/gtfs.zip"));
+      reader.setInputLocation(new File("resources/gtfs.zip"));
       store = new GtfsDaoImpl();
       reader.setEntityStore(store);
       reader.run();
+      timesByStop = new HashMap<>();
+      for (StopTime stopTime:store.getAllStopTimes()){
+        if (!timesByStop.containsKey(stopTime.getStop().getId())){
+          timesByStop.put(stopTime.getStop().getId(),new ArrayList<>());
+        }
+        timesByStop.get(stopTime.getStop().getId()).add(stopTime);
+      }
     } catch (IOException e) {
       throw new RuntimeException("Can't read gtfs file");
     }
 
+  }
+
+  public List<StopTime> timesForStop(AgencyAndId stop){
+    return timesByStop.get(stop);
   }
 
   public GtfsDaoImpl getStore() {
@@ -112,7 +120,7 @@ public class GtfsDataService {
     calendar.setTime(new Date());
     int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
     //Before 3am, it's still yesterday
-    if (calendar.get(Calendar.HOUR_OF_DAY) < 3){
+    if (calendar.get(Calendar.HOUR_OF_DAY) < HOURS_AFTER_MIDNIGHT){
       dayOfWeek--;
     }
     return dayOfWeek;
@@ -121,12 +129,12 @@ public class GtfsDataService {
   private ServiceDate getServiceDate(){
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(new Date());
-    calendar.add(Calendar.HOUR,-3);
+    calendar.add(Calendar.HOUR,-HOURS_AFTER_MIDNIGHT);
     return new ServiceDate(calendar);
   }
 
   //Invalidate serviceIds at 3:05am
-  @Scheduled(cron="0 3 5 * * ?")
+  @Scheduled(cron="0 "+HOURS_AFTER_MIDNIGHT+" 5 * * ?")
   private void invalidateServiceIds(){
     serviceIds = null;
   }

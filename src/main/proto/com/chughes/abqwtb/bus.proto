@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package com.chughes.abqwtb;
+
+message Bus {
+  string trip_id = 1;
+  int32 seconds_late = 2;
+  string scheduled_time = 3;
+}
+
+message Stop {
+  repeated Bus busses = 1;
+}
