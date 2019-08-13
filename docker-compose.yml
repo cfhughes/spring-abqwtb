@@ -1,0 +1,17 @@
+version: '3.7'
+services:
+  nginx:
+    build: ./nginx
+    container_name: proxy_nginx
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - app
+
+  app:
+    restart: always
+    build: .
+    expose:
+      - "8080"

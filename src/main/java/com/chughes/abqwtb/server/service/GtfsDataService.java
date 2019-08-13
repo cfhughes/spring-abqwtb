@@ -32,11 +32,13 @@ public class GtfsDataService {
 
   private Map<AgencyAndId, List<StopTime>> timesByStop;
 
+  private Map<AgencyAndId, StopTime> lastStopByTrip;
+
   @PostConstruct
   public void init() {
     GtfsReader reader = new GtfsReader();
     try {
-      reader.setInputLocation(new File("resources/gtfs.zip"));
+      reader.setInputLocation(new File("/resources/gtfs.zip"));
       store = new GtfsDaoImpl();
       reader.setEntityStore(store);
       reader.run();
@@ -113,6 +115,24 @@ public class GtfsDataService {
       }
     }
     return service;
+  }
+
+  public boolean isLastStop(StopTime stopTime){
+    if (lastStopByTrip == null) {
+      lastStopByTrip = new HashMap<>();
+      for (StopTime stopT : store.getAllStopTimes()) {
+        if (!getCurrentServiceIds().contains(stopT.getTrip().getServiceId())){
+          //No service today
+          continue;
+        }
+        StopTime currentLastStop = lastStopByTrip.get(stopT.getTrip().getId());
+        if (currentLastStop == null || currentLastStop.getStopSequence() < stopT.getStopSequence()) {
+          lastStopByTrip.put(stopT.getTrip().getId(), stopT);
+        }
+      }
+    }
+    return stopTime.getId().equals(lastStopByTrip.get(stopTime.getTrip().getId()).getId());
+
   }
 
   private int getDayOfWeek(){

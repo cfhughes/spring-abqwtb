@@ -7,6 +7,7 @@ import com.chughes.abqwtb.server.service.GtfsDataService;
 import com.chughes.abqwtb.server.service.RealtimeDataService;
 import java.time.Duration;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -57,6 +58,10 @@ public class MainController {
         //Not current service
         continue;
       }
+      if (gtfsDataService.isLastStop(stopTime)){
+        //last stop
+        continue;
+      }
       //System.out.println(tripId);
       long secondsLate = -1;
       if (realtimeDataService.getSecondsLateDataStore().containsKey(tripId)) {
@@ -72,7 +77,7 @@ public class MainController {
               stopTime.getArrivalTime() / 60 % 60,
               stopTime.getArrivalTime() % 60);
       realtimeTripInfo.setDisplayTime(arrivalTime.toString());
-      Duration duration = Duration.between(LocalTime.now(), arrivalTime);
+      Duration duration = Duration.between(LocalTime.now(ZoneId.of("America/Denver")), arrivalTime);
       if (duration.getSeconds() < 3600 && duration.getSeconds() > -1800){
         stopTimes.add(realtimeTripInfo);
       }
