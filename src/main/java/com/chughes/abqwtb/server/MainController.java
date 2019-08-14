@@ -73,7 +73,7 @@ public class MainController {
       realtimeTripInfo.setTripId(tripId);
       realtimeTripInfo.setService(trip.getServiceId().getId());
       LocalTime arrivalTime = LocalTime.of(
-              stopTime.getArrivalTime() / (60 * 60) % 24,
+              stopTime.getArrivalTime() / (60 * 60) % 24, //Times past midnight start back at 0
               stopTime.getArrivalTime() / 60 % 60,
               stopTime.getArrivalTime() % 60);
       realtimeTripInfo.setDisplayTime(arrivalTime.toString());

@@ -10,6 +10,7 @@ import static java.util.Calendar.WEDNESDAY;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalTime;
 import java.util.*;
 import javax.annotation.PostConstruct;
 import org.onebusaway.gtfs.impl.GtfsDaoImpl;
@@ -38,7 +39,7 @@ public class GtfsDataService {
   public void init() {
     GtfsReader reader = new GtfsReader();
     try {
-      reader.setInputLocation(new File("/resources/gtfs.zip"));
+      reader.setInputLocation(new File("src/main/resources/gtfs.zip"));
       store = new GtfsDaoImpl();
       reader.setEntityStore(store);
       reader.run();
@@ -48,10 +49,13 @@ public class GtfsDataService {
           timesByStop.put(stopTime.getStop().getId(),new ArrayList<>());
         }
         timesByStop.get(stopTime.getStop().getId()).add(stopTime);
+        //System.out.println(stopTime.getArrivalTime());
       }
     } catch (IOException e) {
       throw new RuntimeException("Can't read gtfs file");
     }
+
+    getServiceIds();
 
   }
 
@@ -157,5 +161,6 @@ public class GtfsDataService {
   @Scheduled(cron="0 "+HOURS_AFTER_MIDNIGHT+" 5 * * ?")
   private void invalidateServiceIds(){
     serviceIds = null;
+    getServiceIds();
   }
 }

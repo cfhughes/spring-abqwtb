@@ -42,6 +42,14 @@ public class ScheduledQuery {
       //Stop s = gtfsDataService.getStore().getStopForId(new AgencyAndId("1",vehicle.getNextStopId()));
 
       Duration d = Duration.between(vehicle.getMsgTime(),vehicle.getNextStopSchedTime());
+      //TODO Is this really necessary? Fixes past midnight trips
+      if (d.compareTo(Duration.ofHours(20)) > 0){
+        d = d.minus(Duration.ofHours(24));
+      }
+      if (d.compareTo(Duration.ofHours(-20)) < 0){
+        d = d.plus(Duration.ofHours(24));
+      }
+      log.info("Trip "+vehicle.getTripId() + " Duration "+d);
 
       BusUpdateData updateDataCurrent = new BusUpdateData(vehicle.getMsgTime(), d.getSeconds(), vehicle.getNextStopId());
       BusUpdateData updateDataPrevious = realtimeDataService.getSecondsLateTemp(vehicle.getTripId());

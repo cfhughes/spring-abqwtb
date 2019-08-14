@@ -26,7 +26,18 @@ public class HTTPGetter {
     Gson gson = new GsonBuilder()
         .registerTypeAdapter(LocalTime.class,
             (JsonDeserializer<LocalTime>) (json, type, jsonDeserializationContext)
-                -> LocalTime.parse(json.getAsString()))
+                -> {
+          String timeString = json.getAsString();
+          String hour = timeString.split(":")[0];
+          int intHour = Integer.parseInt(hour);
+          if (intHour > 23){
+            intHour = intHour - 24;
+            StringBuilder time = new StringBuilder(timeString);
+            time.replace(0,2, String.format("%02d", intHour));
+            timeString = time.toString();
+          }
+          return LocalTime.parse(timeString);
+        })
         .create();
 
     Retrofit retrofit = new Retrofit.Builder()
