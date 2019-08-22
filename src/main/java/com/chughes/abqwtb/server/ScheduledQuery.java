@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
 import java.time.Duration;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
@@ -35,6 +37,10 @@ public class ScheduledQuery {
 
   @Scheduled(fixedRate = 15 * 1000)
   public void reportCurrentTime() {
+    int seconds = LocalTime.now(ZoneId.of("America/Denver")).toSecondOfDay();
+    if (!gtfsDataService.isServiceActive(seconds)){
+      return;
+    }
     List<Vehicle> vehicles = httpGetter.get();
     log.info("The time is now {} and There are {} buses", dateFormat.format(new Date()), vehicles.size());
     for (Vehicle vehicle:vehicles){
@@ -49,7 +55,7 @@ public class ScheduledQuery {
       if (d.compareTo(Duration.ofHours(-20)) < 0){
         d = d.plus(Duration.ofHours(24));
       }
-      log.info("Trip "+vehicle.getTripId() + " Duration "+d);
+      //log.info("Trip "+vehicle.getTripId() + " Duration "+d);
 
       BusUpdateData updateDataCurrent = new BusUpdateData(vehicle.getMsgTime(), d.getSeconds(), vehicle.getNextStopId());
       BusUpdateData updateDataPrevious = realtimeDataService.getSecondsLateTemp(vehicle.getTripId());
