@@ -1,5 +1,3 @@
-package com.chughes.abqwtb.server;
-
 import com.chughes.abqwtb.server.model.Vehicle;
 import com.chughes.abqwtb.server.service.AbqDataService;
 import com.google.gson.Gson;

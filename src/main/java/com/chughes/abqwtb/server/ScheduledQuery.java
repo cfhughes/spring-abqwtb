@@ -1,5 +1,6 @@
 package com.chughes.abqwtb.server;
 
+import com.chughes.HTTPGetter;
 import com.chughes.abqwtb.server.model.BusUpdateData;
 import com.chughes.abqwtb.server.model.Vehicle;
 import com.chughes.abqwtb.server.service.GtfsDataService;
